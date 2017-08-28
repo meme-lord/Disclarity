@@ -1,0 +1,14 @@
+discord.py
+aiohttp
+websockets
+storj
+chardet
+Pillow
+praw
+requests
+beautifulsoup4
+click
+colorama
+numpy
+dropbox
+Ptable
