@@ -424,14 +424,20 @@ async def lovecalculator( lovers: discord.Member, loved: discord.Member):
     await client.say(embed=em)
 
 
+checklist = []
+
 @client.command(pass_context=True)
 async def insult(ctx,user: discord.Member):
+    global checklist
+    print(checklist)
     """Insults The specified User (HARSH ROASTS)"""
     def _read_json():
         with open('data/insult/insults.json', encoding='utf-8', mode="r") as f:
             data = json.load(f)
         return data
     insults =_read_json()
+    insults = filter(lambda x: x not in checklist, insults)
+    insults = list(insults)
     x1 = user.id
     msg = ' '
     if user != None:
@@ -441,10 +447,16 @@ async def insult(ctx,user: discord.Member):
             await client.say(user.mention + msg)
         else:
             #await client.delete_message(ctx.message)
-            await client.say(user.mention + msg + randchoice(insults))
+            xx =randchoice(insults)
+            await client.say(user.mention + msg + xx)
+            checklist.append(xx)
     else:
         #await client.delete_message(ctx.message)
-        await client.say(ctx.message.author.mention + msg + randchoice(insults))
+        xx =randchoice(insults)
+        await client.say(ctx.message.author.mention + msg + xx)
+        checklist.append(xx)
+    if len(insults) == len(checklist):
+        checklist = []
 
 
 
