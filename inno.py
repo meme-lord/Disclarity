@@ -427,7 +427,8 @@ async def lovecalculator( lovers: discord.Member, loved: discord.Member):
 checklist = []
 
 @client.command(pass_context=True)
-async def insult(ctx,user: discord.Member):
+async def insult(ctx,user):
+    user = search(ctx,user)
     global checklist
     print(checklist)
     """Insults The specified User (HARSH ROASTS)"""
