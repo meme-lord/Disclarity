@@ -1004,6 +1004,7 @@ async def cointoss(ctx,user,amount):
                 confirm = await client.wait_for_message(timeout=120,author=member)
                 if confirm ==None:
                     await client.say("Too much time has passed!,canceling the bet!")
+                    betlist.remove(Challenger.name)
                 if "yes" in confirm.content:
                     waged = OpponentM
                     await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
