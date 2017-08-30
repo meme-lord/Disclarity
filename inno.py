@@ -430,7 +430,6 @@ checklist = []
 async def insult(ctx,user):
     user = search(ctx,user)
     global checklist
-    print(checklist)
     """Insults The specified User (HARSH ROASTS)"""
     def _read_json():
         with open('data/insult/insults.json', encoding='utf-8', mode="r") as f:
