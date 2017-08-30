@@ -30,6 +30,7 @@ from dropbox.exceptions import ApiError, AuthError
 import sqlite3
 from prettytable import PrettyTable
 from difflib import get_close_matches
+from modules import *
 
 
 
@@ -394,7 +395,9 @@ async def on_message(message):
 
 
 @client.command(aliases=['lovecalc'])
-async def lovecalculator( lovers: discord.Member, loved: discord.Member):
+async def lovecalculator(ctx,lovers,loved):
+    lovers = search(ctx,lovers)
+    loved = search(ctx,loved)
     """Calculate the love percentage!"""
     x = lovers.display_name
     y = loved.display_name
@@ -798,7 +801,7 @@ async def addcoin(ctx,member,number):
     memroles = ctx.message.author.roles
     if role in memroles:
         print ("Opened database successfully")
-        memberz = discord.utils.get(client.get_server("205438531429072897").members, name=member)
+        memberz = search(ctx,member)
         if memberz != None:
             conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (number, memberz.id)) 
             await client.say("No.of Moolah Added: "+str(number))
@@ -815,7 +818,7 @@ async def removecoin(ctx,member,number):
     memroles = ctx.message.author.roles
     if role in memroles:
         print ("Opened database successfully")
-        memberz = discord.utils.get(client.get_server("205438531429072897").members, name=member)
+        memberz = search(ctx,member)
         if memberz != None:
             conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=?", (number, memberz.id)) 
             await client.say("No.of Moolah Removed: "+str(number))
@@ -965,6 +968,7 @@ betlist = []
 
 @client.command(pass_context = True)
 async def cointoss(ctx,user,amount):
+    print(betlist)
     amount = abs(int(amount))
     bank = ['heads',"tails"]
     found = search(ctx,user)
@@ -984,93 +988,115 @@ async def cointoss(ctx,user,amount):
     a = ['heads', 'tails', 'cancel']
     if ChallengerM < int(amount) :
         await client.say("You Dont Have Enough Moolah for this wager!")
-    elif OpponentM < int(amount) and OpponentM  > 0 :
-        await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
-        betlist.append(Challenger.name)
-        conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (amount, Challenger.id)) 
-        await client.say(str(member.name)+"has insufficient Funds for this wager! , type yes to all in!")
-        confirm = await client.wait_for_message(timeout=120,author=member)
-        if confirm ==None:
-            await client.say("Too much time has passed!,canceling the bet!")
-        if "yes" in confirm.content:
-            waged = OpponentM
+    if Challenger.name in betlist:
+        await client.say("You Already have a bet placed !")
+    elif Challenger.name not in betlist:
+        if OpponentM < int(amount) and OpponentM  > 0 and not ChallengerM < int(amount):
+            if Challenger.name not in betlist:
+                print("APPENDING!")
+                betlist.append(Challenger.name)
             await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
-            await client.say("The Opponent get to pick the sides!")
-            msg = await client.wait_for_message(author=member)
-            if "heads" in msg.content:
-                await client.say("{} has picked heads and {} takes tails ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
-                conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
+            await client.say("** ``` Warning! {} has less then the Wagered amount! [{}] ```**.\n Your Opponent Can All in and Gain the Total Pot of **{}** .\n Type **[yes/no]** to **[Confirm/Cancel]** .".format(member.name,OpponentM,(OpponentM+amount)))
+            confirmation = await client.wait_for_message(timeout=120,author=ctx.message.author)
+            if "yes" in confirmation.content:
+                conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (amount, Challenger.id)) 
+                await client.say("```"+str(member.name)+" has insufficient Funds for this wager! .```\n Type **yes** to all in! ")
+                confirm = await client.wait_for_message(timeout=120,author=member)
+                if confirm ==None:
+                    await client.say("Too much time has passed!,canceling the bet!")
+                if "yes" in confirm.content:
+                    waged = OpponentM
+                    await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
+                    await client.say("The Opponent get to pick the sides!")
+                    msg = await client.wait_for_message(timeout=120,author=member)
+                    if "heads" in msg.content:
+                        betlist.remove(Challenger.name)
+                        await client.say("{} has picked heads and {} takes tails ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
+                        conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
 
-                result = secure_random.choice(bank)
-                await client.say(":drum: ")
-                await asyncio.sleep(3)
-                await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
-                totalpot = int(amount)+int(waged)
-                if result == "heads":
-                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
-                elif result =="tails":
-                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
-            elif "tails" in msg.content:
-                totalpot = int(amount)+int(waged)
-                await client.say("{} has picked tails and {} takes heads ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
-                conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
-                result = secure_random.choice(bank)
-                await client.say(":drum: ")
-                await asyncio.sleep(3)
-                await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
+                        result = secure_random.choice(bank)
+                        await client.say(":drum: ")
+                        await asyncio.sleep(3)
+                        await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
+                        totalpot = int(amount)+int(waged)
+                        if result == "heads":
+                            conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
+                        elif result =="tails":
+                            conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
+                    elif "tails" in msg.content:
+                        betlist.remove(Challenger.name)
+                        totalpot = int(amount)+int(waged)
+                        await client.say("{} has picked tails and {} takes heads ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
+                        conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
+                        result = secure_random.choice(bank)
+                        await client.say(":drum: ")
+                        await asyncio.sleep(3)
+                        await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
 
-                if result == "heads":
-                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
-                elif result =="tails":
-                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
-            elif "cancel" in msg.content:
-                conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
-                await client.say("{} has canceled the wager!".format(member.name))
-        elif not any(x in msg.content for x in a):
-        	conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
-        	await client.say("{}'s Bet Has Been canceled due to INVALID input!'".format(Challenger.name))
-    elif OpponentM  == 0:
-        await client.say("{} has no Moolah Left !".format(member.name))
-    else:
-        await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
-        conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=?", (amount, Challenger.id)) 
-        await client.say("The Opponent get to pick the sides!")
-        waged = amount
-        msg = await client.wait_for_message(timeout=120,author=member)
-        if msg ==None:
-            await client.say("Too much time has passed!,canceling the bet!")
-        elif "heads" in msg.content:
-            await client.say("{} has picked heads and {} takes tails ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
-            conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
-            result = secure_random.choice(bank)
-            await client.say(":drum: ")
-            await asyncio.sleep(3)
-            await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
-            totalpot = int(amount)+int(waged)
-            if result == "heads":
-                conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
-            elif result =="tails":
-                conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
-        elif "tails" in msg.content:
-            totalpot = int(amount)+int(waged)
-            await client.say("{} has picked tails and {} takes heads ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
-            conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
-            result = secure_random.choice(bank)
-            await client.say(":drum: ")
-            await asyncio.sleep(3)
-            await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
+                        if result == "heads":
+                            conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
+                        elif result =="tails":
+                            conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
+                    elif "cancel" in msg.content:
+                        betlist.remove(Challenger.name)
+                        conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
+                        await client.say("{} has canceled the wager!".format(member.name))
+                elif not any(x in msg.content for x in a):
+                    betlist.remove(Challenger.name)
+                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
+                    await client.say("{}'s Bet Has Been canceled due to INVALID input!'".format(Challenger.name))
+            else:
+                betlist.remove(Challenger.name)
+                await client.say("The Wager has been canceled by "+str(Challenger.name))
+        elif OpponentM  == 0:
+            await client.say("{} has no Moolah Left !".format(member.name))
+        else:
+            if Challenger.name not in betlist and ChallengerM > int(amount) and ChallengerM > 0:
+                betlist.append(Challenger.name)
+                await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
+                conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=?", (amount, Challenger.id)) 
+                await client.say("The Opponent get to pick the sides!")
+                waged = amount
+                msg = await client.wait_for_message(timeout=120,author=member)
+                if msg ==None:
+                    await client.say("Too much time has passed!,canceling the bet!")
+                elif "heads" in msg.content:
+                    betlist.remove(Challenger.name)
+                    await client.say("{} has picked heads and {} takes tails ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
+                    conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
+                    result = secure_random.choice(bank)
+                    await client.say(":drum: ")
+                    await asyncio.sleep(3)
+                    await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
+                    totalpot = int(amount)+int(waged)
+                    if result == "heads":
+                        conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
+                    elif result =="tails":
+                        conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
+                elif "tails" in msg.content:
+                    betlist.remove(Challenger.name)
+                    totalpot = int(amount)+int(waged)
+                    await client.say("{} has picked tails and {} takes heads ".format(member.name,ctx.message.author.name)+"{} has waged {}. \n **Total Pot:{}**".format(member.name,waged,str(int(waged)+int(amount))))
+                    conn.execute("UPDATE SERVER SET COIN = COIN - ? WHERE ID=? and COIN > 0", (int(waged), member.id))
+                    result = secure_random.choice(bank)
+                    await client.say(":drum: ")
+                    await asyncio.sleep(3)
+                    await client.say("The Coin has Landed !.........and its "+"**"+str(result)+" ! **" )
 
-            if result == "heads":
-                conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
-            elif result =="tails":
-                conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
-        elif "cancel" in msg.content:
-            conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
-            await client.say("{} has canceled the wager!".format(Opponent.name))
-        elif not any(x in msg.content for x in a):
-        	conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
-        	await client.say("{}'s Bet Has Been canceled due to INVALID input!'".format(Challenger.name))
-
+                    if result == "heads":
+                        conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Challenger.id)) 
+                    elif result =="tails":
+                        conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (str(totalpot), Opponent.id)) 
+                elif "cancel" in msg.content:
+                    betlist.remove(Challenger.name)
+                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
+                    await client.say("{} has canceled the wager!".format(Opponent.name))
+                elif not any(x in msg.content for x in a):
+                    betlist.remove(Challenger.name)
+                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
+                    await client.say("{}'s Bet Has Been canceled due to INVALID input!'".format(Challenger.name))
+            elif Challenger.name in betlist:
+                await client.say("You Already have a bet Placed!")
 
 @client.command(pass_context = True)
 async def Reset(ctx):
