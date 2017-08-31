@@ -30,8 +30,8 @@ from dropbox.exceptions import ApiError, AuthError
 import sqlite3
 from prettytable import PrettyTable
 from difflib import get_close_matches
-from modules import *
-
+from modules.sqdatabase import*
+import collections
 
 
 Client = discord.Client()
@@ -1170,6 +1170,107 @@ async def cointoss(ctx,user,amount):
                 await client.say("There is already a Pending Bet!")
             else:
                 await client.say("Error Bet Couldn't be Placed!")
+
+global d
+d = collections.defaultdict(list)
+
+@client.command(pass_context = True)
+async def buytic(ctx,NoTic=None):
+    if NoTic == None:
+        await client.say("Please input the No of tickets to be purchased!. e.g- .buytic 5 \n Each Ticket costs {}".format(costs))
+    else:
+        NoTic = abs(int(NoTic))
+        c1 =database(id = ctx.message.author.id) 
+        info = c1.info()
+        if info.coin < int(costs)*int(NoTic):
+            await client.say("You Dont Have Enough Moolah for this Purchase")
+        if NoTic > Max:
+            await client.say("Maximum Numer of Tickets per person for this raffle is {}".format(Max))
+        elif NoTic <=int(xon) and not info.coin < int(costs)*int(NoTic):
+            totalcost = 0 
+            nott = 0
+            rafflelist.append(ctx.message.author.name)
+            global d
+            print(d[ctx.message.author.name])
+            for x in range (0,NoTic):
+                if len(raffletic) != 0 and len(d[ctx.message.author.name]) != Max:
+                    number = randchoice(raffletic)
+                    nott = nott + 1
+                    totalcost = totalcost + int(costs)
+                    d[ctx.message.author.name].append(number)
+                    raffletic.remove(number)
+            print(d[ctx.message.author.name])
+            await client.say("{} Tickets Bought Costing {}".format(nott,totalcost))
+            c1.update(arg="coin",types ="-",DATA=totalcost)
+            global pool
+            pool = pool + totalcost
+            print(d)
+
+@client.command(pass_context = True)
+async def callraffle(ctx):
+    global RaffleSTATE
+    if isprimus(ctx,ctx.message.author.name) and RaffleSTATE ==True:
+        await client.say("The time to Buy Tickets has ended ! \n Drawing a number from the magical Hat!")
+        await client.say(":drum: ")
+        await asyncio.sleep(3)
+        winningno = randchoice(list(range(0, int(xon))))
+        for x in d:
+            for y in d[x]:
+                if winningno == y:
+                    await client.say("The Winning Number is {} !".format(winningno))
+                    await client.say("{} is holding the the winning number {}".format(x,winningno))
+                    global final
+                    final = x
+        print(final)
+        c1 =database(id = (search(ctx,final)).id)
+        global pool
+        c1.update(arg="coin",types ="+",DATA=pool)
+        RaffleSTATE = False
+
+global RaffleSTATE
+RaffleSTATE = False
+rafflelist = []
+global xon
+xon = 0
+global raffletic
+global pool
+pool = 0
+raffletic = list(range(0, xon))
+@client.command(pass_context = True)
+async def startraffle(ctx,nooftickets=None,MaxticketsPERPERSON=0,cost=None):
+    if nooftickets ==None:
+        await client.say("Please input the No of tickets to be purchased!")
+    elif cost ==None:
+        await client.say("Please input the price of each ticket!")
+    elif MaxticketsPERPERSON ==0:
+        await client.say("Please input The Maximum number of tickets per person!") 
+    if isprimus(ctx,ctx.message.author.name):
+        global RaffleSTATE
+        if RaffleSTATE == False:
+            if nooftickets !=None and cost !=None and MaxticketsPERPERSON != 0:
+                global costs
+                costs = cost
+                global xon
+                global Max
+                Max = MaxticketsPERPERSON
+                xon = nooftickets
+                global raffletic
+                raffletic = list(range(0, int(xon)))
+                await client.say("``` A Raffle has been Started by [{}] \n Maximum of {} tickets per person. Each Tickets Costs {} Moolah \n No of Tickets Left {}```".format(ctx.message.author.display_name,Max,cost,xon))
+                RaffleSTATE = True
+        else:
+            await client.say("There is Already a Raffle Going On!")
+
+
+def isprimus(ctx,member):
+    role = discord.utils.get(ctx.message.server.roles, name="Primus")
+    member = search(ctx,member)
+    memroles = member.roles
+    if role in memroles:
+        return True
+    else:
+        return False
+
 
 
 @client.command(pass_context = True)

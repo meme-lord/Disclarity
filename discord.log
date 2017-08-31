@@ -1,0 +1,5 @@
+2017-08-31 20:56:32,197:INFO:discord.client: on_ready has successfully been registered as an event
+2017-08-31 20:56:32,197:INFO:discord.client: on_member_remove has successfully been registered as an event
+2017-08-31 20:56:32,197:INFO:discord.client: on_member_join has successfully been registered as an event
+2017-08-31 20:56:32,198:INFO:discord.client: on_member_update has successfully been registered as an event
+2017-08-31 20:56:32,198:INFO:discord.client: on_message has successfully been registered as an event
