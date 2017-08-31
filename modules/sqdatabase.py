@@ -1,7 +1,13 @@
 import sqlite3
 global conn
-conn = sqlite3.connect('USER.db') 
-
+def startdatabase():
+	global conn
+	print("Starting database")
+	conn = sqlite3.connect('USER.db') 
+	cursor = conn.execute("SELECT NAME, NICK, ID,COIN FROM SERVER WHERE ID=:Id", {"Id": "119852613561745408"})
+	for row in cursor:
+		name = row[0]
+	print(name)
 
 
 class database():
