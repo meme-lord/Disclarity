@@ -438,6 +438,9 @@ async def compliment(ctx,member):
     user = search(ctx,member)
     with open('data/compliments.txt', encoding='utf-8', mode="r") as f:
         data = f.readlines()
+    if user.bot:
+        with open('data/compliments-Robot.txt', encoding='utf-8', mode="r") as f:
+            data = f.readlines()
     data = [x.strip('\n') for x in data]
     data = filter(lambda x: x not in checklist2, data)
     data = list(data)
