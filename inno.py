@@ -434,6 +434,7 @@ global checklist2
 checklist2 = []
 @client.command(aliases=['compli'],pass_context=True)
 async def compliment(ctx,member):
+    '''Brighten Up Someone's day by complimenting them!'''
     global checklist2
     user = search(ctx,member)
     with open('data/compliments.txt', encoding='utf-8', mode="r") as f:
@@ -1021,6 +1022,7 @@ betlist = []
 
 @client.command(pass_context = True)
 async def cointoss(ctx,user,amount):
+    ''' Wager Your Moolah in this deadly game and rise to the top!'''
     print(betlist)
     amount = abs(int(amount))
     bank = ['heads',"tails"]
@@ -1166,6 +1168,9 @@ async def cointoss(ctx,user,amount):
                     await client.say("{}'s Bet Has Been canceled due to INVALID input!'".format(Challenger.name))
             elif Challenger.name in betlist:
                 await client.say("There is already a Pending Bet!")
+            else:
+                await client.say("Error Bet Couldn't be Placed!")
+
 
 @client.command(pass_context = True)
 async def Reset(ctx):
