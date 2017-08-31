@@ -1,8 +1,10 @@
 import sqlite3
 global conn
+conn = sqlite3.connect('USER.db') 
 
 
-class database:
+
+class database():
 	def __init__(self,name = None ,nick=None,id =None,coin = 0):
 		self.id = id
 		cursor = conn.execute("SELECT NAME, NICK, ID,COIN FROM SERVER WHERE ID=:Id", {"Id": self.id})
