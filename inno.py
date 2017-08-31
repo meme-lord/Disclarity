@@ -976,26 +976,36 @@ def search(ctx,member):
     for memberss in memberlist:
         namelist.append(memberss.name)
     match = get_close_matches(member, namelist)
+    for xx in match:
+        print(str(xx))
     for membersx in memberlist:
         nicklist.append(str(membersx.nick))
     match2 = get_close_matches(member, nicklist)
-    #print("len of match "+str(len(match)))
-    #print("len of match2 "+str(len(match2)))
+    for yy in match2:
+        print(yy)
+    print("len of match "+str(len(match)))
+    print("len of match2 "+str(len(match2)))
     if len(match) != 0 :
-        #print("Got here3")
+        print("Got here3")
         name = discord.utils.get(memberlist, name=match[0])
         return name
     elif len(match) == 0:
-        #print("Got here 3.5")
+        print("Got here 3.5")
         if len(match2) != 0:
-            #print("Got here4")
+            print("Got here4")
             nick = discord.utils.get(memberlist, nick=match2[0])
             return nick
         elif len(match2) == 0:
-            #print("Got here5")
+            print("Got here5")
             if member.isdigit():
                 nameid = discord.utils.get(memberlist, id=member)
                 return nameid
+            elif "@" in member[1:2]:
+                user = member.strip('<')
+                user = user.strip('>')
+                user = user.strip('@')
+                user = discord.utils.get(ctx.message.server.members, id=user)
+                return user
             else:
                 return None
 
