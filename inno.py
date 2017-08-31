@@ -427,19 +427,51 @@ async def lovecalculator(ctx,lovers,loved):
     await client.say(embed=em)
 
 
-checklist = []
+global checklist2
+checklist2 = []
+@client.command(aliases=['compli'],pass_context=True)
+async def compliment(ctx,member):
+    global checklist2
+    user = search(ctx,member)
+    with open('data/compliments.txt', encoding='utf-8', mode="r") as f:
+        data = f.readlines()
+    data = [x.strip('\n') for x in data]
+    data = filter(lambda x: x not in checklist2, data)
+    data = list(data)
+    x1 = user.id
+    msg = ' '
+    if user != None:
+        if user.display_name == "Innocent Bot":
+            user = ctx.message.author
+            msg = "Awww How Sweet!,You Brighten my Day.Alas...if only I could feel.."
+            await client.say(user.mention + msg)
+        else:
+            #await client.delete_message(ctx.message)
+            xx =randchoice(data)
+            await client.say(user.mention + msg + xx)
+            checklist2.append(xx)
+    else:
+        #await client.delete_message(ctx.message)
+        xx =randchoice(data)
+        await client.say(ctx.message.author.mention + msg + xx)
+        checklist2.append(xx)
+    if len(data) == len(checklist2):
+        checklist2 = []
+
+checklist1 = []
 
 @client.command(pass_context=True)
 async def insult(ctx,user):
     user = search(ctx,user)
-    global checklist
+    global checklist1
+
     """Insults The specified User (HARSH ROASTS)"""
     def _read_json():
         with open('data/insult/insults.json', encoding='utf-8', mode="r") as f:
             data = json.load(f)
         return data
     insults =_read_json()
-    insults = filter(lambda x: x not in checklist, insults)
+    insults = filter(lambda x: x not in checklist1, insults)
     insults = list(insults)
     x1 = user.id
     msg = ' '
@@ -452,14 +484,14 @@ async def insult(ctx,user):
             #await client.delete_message(ctx.message)
             xx =randchoice(insults)
             await client.say(user.mention + msg + xx)
-            checklist.append(xx)
+            checklist1.append(xx)
     else:
         #await client.delete_message(ctx.message)
         xx =randchoice(insults)
         await client.say(ctx.message.author.mention + msg + xx)
-        checklist.append(xx)
-    if len(insults) == len(checklist):
-        checklist = []
+        checklist1.append(xx)
+    if len(insults) == len(checklist1):
+        checklist1 = []
 
 
 
