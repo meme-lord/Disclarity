@@ -971,6 +971,7 @@ async def buyrole(ctx,buyrole):
 
 def search(ctx,member):
     memberlist = ctx.message.server.members
+
     namelist = []
     nicklist = []
     for memberss in memberlist:
@@ -1001,10 +1002,14 @@ def search(ctx,member):
                 nameid = discord.utils.get(memberlist, id=member)
                 return nameid
             elif "@" in member[1:2]:
+                print(member[1:2])
                 user = member.strip('<')
                 user = user.strip('>')
                 user = user.strip('@')
+                user = user.strip('!')
+                print("PRINTING "+user)
                 user = discord.utils.get(ctx.message.server.members, id=user)
+                print(user.display_name)
                 return user
             else:
                 return None
