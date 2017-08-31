@@ -305,8 +305,11 @@ async def clearO(ctx, number):
 @client.command(pass_context=True)
 async def echo(ctx, *, echo: str):
     """The Bot follows your lead!"""
-    await client.delete_message(ctx.message)
-    await client.say(echo)
+    role = discord.utils.get(client.get_server("205438531429072897").roles, name="Primus")
+    memroles = ctx.message.author.roles
+    if role in memroles:
+        await client.delete_message(ctx.message)
+        await client.say(echo)
     
 @client.command(pass_context=True)
 async def kill(ctx, *, member : discord.Member = None):
@@ -394,7 +397,7 @@ async def on_message(message):
 
 
 
-@client.command(aliases=['lovecalc'])
+@client.command(aliases=['lovecalc'],pass_context=True)
 async def lovecalculator(ctx,lovers,loved):
     lovers = search(ctx,lovers)
     loved = search(ctx,loved)
