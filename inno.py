@@ -785,22 +785,6 @@ def check_files():
 def unic(msg): #convert text for saving in .txt
     return msg.encode("utf-8")
 
-
-
-@client.command(pass_context = True)
-async def meme(ctx):
-    """Get Your Daily Dose of Memes"""
-    with open("list.txt") as f:
-        content = f.readlines()
-    # you may also want to remove whitespace characters like `\n` at the end of each line
-        content = [x.strip() for x in content] 
-        channel1 = "341721336743329793"
-        #await client.delete_message(ctx.message)
-        comment =  await client.say(secure_random.choice(content))
-
-
-
-
 #@client.command(pass_context = True)
 #async def test():
 
