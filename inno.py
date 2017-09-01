@@ -1244,7 +1244,7 @@ async def buytic(ctx,NoTic=None):
 
             global pool
             pool = pool + totalcost
-            xon = xon - abs(int(nott))
+            xon = int(xon) - abs(int(nott))
             await client.say("{} Tickets Bought Costing {}\n [{}] remaining tickets. Current Pool [{}] Moolah".format(nott,totalcost,xon,pool))
             c1.update(arg="coin",types ="-",DATA=totalcost)
             print(d)
