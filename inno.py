@@ -1099,6 +1099,7 @@ async def cointoss(ctx,user,amount):
                 confirm = await client.wait_for_message(timeout=120,author=member)
                 if confirm ==None:
                     await client.say("Too much time has passed!,canceling the bet!")
+                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
                     betlist.remove(Challenger.name)
                     betlist.remove(Opponent.name)
                 if "yes" in confirm.content:
@@ -1163,6 +1164,7 @@ async def cointoss(ctx,user,amount):
                 msg = await client.wait_for_message(timeout=120,author=member)
                 if msg ==None:
                     await client.say("Too much time has passed!,canceling the bet!")
+                    conn.execute("UPDATE SERVER SET COIN = COIN + ? WHERE ID=?", (amount, Challenger.id)) 
                     betlist.remove(Challenger.name)
                     betlist.remove(Opponent.name)
                 elif "heads" in msg.content:
@@ -1238,10 +1240,12 @@ async def buytic(ctx,NoTic=None):
                     d[ctx.message.author.name].append(number)
                     raffletic.remove(number)
             print(d[ctx.message.author.name])
-            await client.say("{} Tickets Bought Costing {}".format(nott,totalcost))
-            c1.update(arg="coin",types ="-",DATA=totalcost)
+            global xon
             global pool
             pool = pool + totalcost
+            xon = xon - abs(int(nott))
+            await client.say("{} Tickets Bought Costing {}\n [{}] remaining tickets. Current Pool [{}] Moolah".format(nott,totalcost,xon,pool))
+            c1.update(arg="coin",types ="-",DATA=totalcost)
             print(d)
 
 @client.command(pass_context = True)
