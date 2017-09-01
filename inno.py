@@ -1219,6 +1219,7 @@ async def buytic(ctx,NoTic=None):
     if NoTic == None:
         await client.say("Please input the No of tickets to be purchased!. e.g- .buytic 5 \n Each Ticket costs {}".format(costs))
     else:
+        global xon
         NoTic = abs(int(NoTic))
         c1 =database(id = ctx.message.author.id) 
         info = c1.info()
@@ -1226,7 +1227,6 @@ async def buytic(ctx,NoTic=None):
             await client.say("You Dont Have Enough Moolah for this Purchase")
         if NoTic > Max:
             await client.say("Maximum Numer of Tickets per person for this raffle is {}".format(Max))
-        global xon
         elif NoTic <=int(xon) and not info.coin < int(costs)*int(NoTic):
             totalcost = 0 
             nott = 0
