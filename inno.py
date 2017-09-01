@@ -32,7 +32,7 @@ from prettytable import PrettyTable
 from difflib import get_close_matches
 #from modules.sqdatabase import*
 import collections
-
+global xon
 
 Client = discord.Client()
 bot_prefix= "."
