@@ -1226,6 +1226,7 @@ async def buytic(ctx,NoTic=None):
             await client.say("You Dont Have Enough Moolah for this Purchase")
         if NoTic > Max:
             await client.say("Maximum Numer of Tickets per person for this raffle is {}".format(Max))
+        global xon
         elif NoTic <=int(xon) and not info.coin < int(costs)*int(NoTic):
             totalcost = 0 
             nott = 0
@@ -1240,7 +1241,7 @@ async def buytic(ctx,NoTic=None):
                     d[ctx.message.author.name].append(number)
                     raffletic.remove(number)
             print(d[ctx.message.author.name])
-            global xon
+
             global pool
             pool = pool + totalcost
             xon = xon - abs(int(nott))
