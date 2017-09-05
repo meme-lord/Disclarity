@@ -1,1 +1,1 @@
-worker: python inno.py
+worker: python ash.py
