@@ -438,10 +438,12 @@ async def insult(ctx,user):
         checklist1 = []
 
 @client.command(pass_context = True)
-async def userinfo(ctx,member):
+async def userinfo(ctx,member=None):
     """Gets User Info"""
     memberz = search(ctx,member)
-    if memberz != None:
+    if member == None:
+        memberz = ctx.message.author
+    elif memberz != None:
         red = database(serverid=ctx.message.server.id,id=memberz.id)
         info = red.info()
         embed=discord.Embed(title="User Information :", color=(memberz.top_role.color))
