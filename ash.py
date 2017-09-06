@@ -64,7 +64,7 @@ files = ("discord.log","data/welcome.txt")
 for file in files:
 	filecheck(file,"y")
 ###########################################################################
-bot_prefix= "/"
+bot_prefix= "."
 client = commands.Bot(command_prefix=bot_prefix)
 
 @client.event
