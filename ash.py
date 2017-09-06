@@ -170,7 +170,7 @@ async def on_message(message):
     contents = message.content
     print("Name: [{}]".format(authorr.name)+" Nickname: [{}]".format(authorr.nick)+" ID: [{}]".format(authorr.id)+" String Length:"+str(len(message.content)))
     #############################################################GIVE COINS#############################################################
-    number = 5
+    number = 1
     if not "." in message.content[0:1] and not "!" in message.content[0:1] :
         if authorr != None and authorr.bot != True:
             red = database(serverid=message.server.id,id=authorr.id)
