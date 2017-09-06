@@ -266,10 +266,6 @@ def search(ctx,member):
     for membersx in memberlist:
         nicklist.append(str(membersx.nick))
     match2 = get_close_matches(member, nicklist)
-    for yy in match2:
-        print(yy)
-    print("len of match "+str(len(match)))
-    print("len of match2 "+str(len(match2)))
     if len(match) != 0 :
         print("Got here3")
         name = discord.utils.get(memberlist, name=match[0])
@@ -309,6 +305,7 @@ def check(message):
 
 @client.command(pass_context=True)
 async def clear(ctx,messages=0,member=None):
+    '''Clears a number of messages or a specified person's messages!'''
     if messages == 0 and member ==None:
         await client.say("No Input ! (.clear <e.g 10> <member or leave as blank> ")
     if member == None and messages !=0:
@@ -337,6 +334,7 @@ async def clearO(ctx, number):
 
 @client.command(aliases=['lovecalc'],pass_context=True)
 async def lovecalculator(ctx,lovers,loved):
+    '''Find out your true love with the 100% totally accurate love calculator!'''
     lovers = search(ctx,lovers)
     loved = search(ctx,loved)
     """Calculate the love percentage!"""
@@ -407,6 +405,7 @@ checklist1 = []
 
 @client.command(pass_context=True)
 async def insult(ctx,user):
+    '''Wasn't stating the obvious enough for your dull mind?'''
     user = search(ctx,user)
     global checklist1
 
@@ -480,6 +479,7 @@ async def removecoin(ctx,member,number):
 
 @client.command(pass_context = True)
 async def topdog(ctx):
+    '''Shows the Top 10 Holders of Moolah '''
     red = database(serverid=ctx.message.server.id)
     string = red.top10()
     x = PrettyTable()
@@ -492,6 +492,7 @@ global d
 d = collections.defaultdict(list)
 @client.command(pass_context = True)
 async def buytic(ctx,NoTic=None):
+    '''buy a raffle ticket!'''
     global xon
     if NoTic == None:
         await client.say("```Please input the No of tickets to be purchased!. e.g- .buytic 5 \n Each Ticket costs {}```".format(costs))
@@ -526,6 +527,7 @@ async def buytic(ctx,NoTic=None):
 
 @client.command(pass_context = True)
 async def callraffle(ctx):
+    '''End a raffle and draw the numbers !'''
     global RaffleSTATE
     if ctx.message.author.server_permissions.administrator and RaffleSTATE ==True:
         await client.say("The time to Buy Tickets has ended ! \n Drawing a number from the magical Hat!")
@@ -562,6 +564,7 @@ pool = 0
 raffletic = list(range(0, xon))
 @client.command(pass_context = True)
 async def startraffle(ctx,nooftickets=None,MaxticketsPERPERSON=0,cost=None):
+    '''Start a raffle '''
     if nooftickets ==None:
         await client.say("```Please input the No of tickets to be purchased!```")
     elif cost ==None:
