@@ -452,7 +452,10 @@ async def userinfo(ctx,member=None):
         embed.add_field(name="Nick", value=info.nick, inline=True)
         embed.add_field(name="ID", value=info.id, inline=True)
         embed.add_field(name="Moolah", value='**'+str(info.coin)+"**", inline=True)
-        embed.set_footer(text="Joined at: "+str(memberz.joined_at))
+        #fix = "Joined at: "+str(memberz.joined_at)
+        #fix = fix[0:30]
+        #embed.set_footer(text=fix)
+
         await client.say(embed=embed)
     else:
         await client.say("**{}** not found! , Contact your bruh .".format(member))
