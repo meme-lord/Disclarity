@@ -66,7 +66,7 @@ for file in files:
 ###########################################################################
 bot_prefix= "."
 client = commands.Bot(command_prefix=bot_prefix)
-
+#fuxes
 @client.event
 async def on_server_join(server):
 	print("Bot has joined {}".format(server.name))
