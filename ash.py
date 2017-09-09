@@ -90,6 +90,7 @@ async def on_ready():
     print("____________________________________")
     restore()
     startdatabase()
+    createroledatabase(client.servers)
     while True:
         givemoolah(client.servers)
         #############TEST AUTO BACKUP####################
@@ -866,19 +867,25 @@ async def highlow(ctx,rounds=8):
             await client.say("Higher (H), Lower (L) or the Same (S)? "+"Current Pot: [**"+str(baseamount)+"**]")
             ui = await client.wait_for_message(timeout=120,author=ctx.message.author)
             choices = set("hls")
-            print(choices)
             if ui.content.lower() in choices:
                 ui = ui.content.lower()
             if comparisons[ui](next_card, card):
                 await client.say(fail_template.format(faces.get(next_card,next_card),next_suit))
                 break
                 await client.say(pass_template.format(faces.get(next_card,next_card),next_suit))
-                print("PRINTING BASE AT 2"+str(baseamount))
                 card, suit = next_card, next_suit               
             else:
                 await client.say(pass_template.format(faces.get(next_card,next_card),next_suit))
-                baseamount = baseamount+baseamount
-                await client.say("```Do you want to continue playing ? type [Y/n]```")
+                if baseamount < 1000:
+                    baseamount = baseamount+(baseamount)
+                    multiplyer = 2
+                if baseamount >= 1000 and baseamount < 2999:
+                    baseamount = baseamount+(baseamount/2)
+                    multiplyer = 1.5
+                if baseamount > 2999:
+                    baseamount = baseamount+(baseamount/4)
+                    multiplyer = 1.25
+                await client.say("```Do you want to continue playing ? type [Y/n]. \n Current Multiplier [x{}] Current Pot [{}]```".format(str(multiplyer),str(baseamount)))
                 repeat = await client.wait_for_message(timeout=120,author=ctx.message.author)
                 repeat = repeat.content.lower()
                 if repeat not in "yes":
@@ -889,7 +896,17 @@ async def highlow(ctx,rounds=8):
         await client.say("You dont have enough Moolah")
 
 @client.command(pass_context = True)
+async def sellrole(ctx,sellrole,price):
+    '''Sets a Role for sale'''
+    if discord.utils.get(ctx.message.server.roles, name=sellrole):
+        await client.say("sellrole command is down for maintance!")
+
+
+
+
+@client.command(pass_context = True)
 async def buyrole(ctx,buyrole):
+    '''Allows you to purchase a role'''
     await client.say("buyrole command is down for maintance!")
 
 

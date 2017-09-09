@@ -4,8 +4,14 @@ global conn
 
 def createdatabase(serverid):
 	print("Creating A new server table!")
-	conn.execute("CREATE TABLE  SERVER_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,NICK            TEXT    ,ROLE        TEXT    NOT NULL,COIN         INT     NOT NULL)")
+	conn.execute("CREATE TABLE  SERVER_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,NICK            TEXT    ,ROLE        TEXT    NOT NULL,COIN         INT     NOT NULL)")	
 	conn.commit()
+
+def createroledatabase(servers):
+	for server in servers:
+		print("Creating a ROLE table for {}".format(server.name))
+		conn.execute("CREATE TABLE  SERVERROLES_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,COIN         INT     NOT NULL)")	
+		conn.commit()
 
 def createuserbase(serverid,members):
 	for x in members:
