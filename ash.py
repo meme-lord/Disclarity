@@ -80,6 +80,16 @@ async def on_server_join(server):
 	except sqlite3.IntegrityError:
 		print("IntegrityError ~ User Names Already Exists!")
 		pass
+    try:
+        roledata = roledatabase(ctx.message.server)
+        roledata.createroledatabase()
+        roledata.populateroles()
+    except sqlite3.OperationalError:
+        print("OperationalError! ~ Table Already Exists")
+        pass
+    except sqlite3.IntegrityError:
+        print("IntegrityError ~ User Names Already Exists!")
+        pass
 
 @client.event
 async def on_ready():
@@ -90,9 +100,6 @@ async def on_ready():
     print("____________________________________")
     restore()
     startdatabase()
-    roledata = roledatabase(ctx.message.server)
-    roledata.createroledatabase()
-    roledata.populateroles()
     while True:
         givemoolah(client.servers)
         #############TEST AUTO BACKUP####################
@@ -927,5 +934,17 @@ async def buyrole(ctx,buyrole):
     await client.say("Buyrole command is down for maintance!")
 
 
+
+@client.command(pass_context = True)
+async def test(ctx):
+    if ctx.message.author.server_permissions.administrator:
+    try:
+        await client.say("RUNNING")
+        roledata = roledatabase(ctx.message.server)
+        roledata.createroledatabase()
+        roledata.populateroles()
+        await client.say("Finished")
+    except:
+        print("Error")
 DISCAPI = os.environ['DISCORDAPI']
 client.run(DISCAPI)
