@@ -90,7 +90,9 @@ async def on_ready():
     print("____________________________________")
     restore()
     startdatabase()
-    roledatabase.createroledatabase(client.servers)
+    roledata = roledatabase(ctx.message.server)
+    roledata.createroledatabase()
+    roledata.populateroles()
     while True:
         givemoolah(client.servers)
         #############TEST AUTO BACKUP####################
