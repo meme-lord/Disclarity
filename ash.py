@@ -66,7 +66,8 @@ for file in files:
 ###########################################################################
 bot_prefix= "."
 client = commands.Bot(command_prefix=bot_prefix)
-#fuxes
+
+
 @client.event
 async def on_server_join(server):
 	print("Bot has joined {}".format(server.name))
@@ -80,16 +81,16 @@ async def on_server_join(server):
 	except sqlite3.IntegrityError:
 		print("IntegrityError ~ User Names Already Exists!")
 		pass
-    try:
-        roledata = roledatabase(ctx.message.server)
-        roledata.createroledatabase()
-        roledata.populateroles()
-    except sqlite3.OperationalError:
-        print("OperationalError! ~ Table Already Exists")
-        pass
-    except sqlite3.IntegrityError:
-        print("IntegrityError ~ User Names Already Exists!")
-        pass
+	try:
+		roledata = roledatabase(server)
+		roledata.createroledatabase()
+		roledata.populateroles()
+	except sqlite3.OperationalError:
+		print("OperationalError! ~ Table Already Exists")
+		pass
+	except sqlite3.IntegrityError:
+		print("IntegrityError ~ User Names Already Exists!")
+		pass
 
 @client.event
 async def on_ready():
@@ -938,13 +939,13 @@ async def buyrole(ctx,buyrole):
 @client.command(pass_context = True)
 async def test(ctx):
     if ctx.message.author.server_permissions.administrator:
-    try:
-        await client.say("RUNNING")
-        roledata = roledatabase(ctx.message.server)
-        roledata.createroledatabase()
-        roledata.populateroles()
-        await client.say("Finished")
-    except:
-        print("Error")
+        try:
+            await client.say("RUNNING")
+            roledata = roledatabase(ctx.message.server)
+            roledata.createroledatabase()
+            roledata.populateroles()
+            await client.say("Finished")
+        except:
+            print("Error")
 DISCAPI = os.environ['DISCORDAPI']
 client.run(DISCAPI)
