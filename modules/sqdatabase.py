@@ -1,17 +1,36 @@
 import sqlite3
 global conn
 
+class roledatabase:
+	def __init__(self,server):
+		self.server = server
+		self.serverid = server.id
+		self.servername = server.name
+	def createroledatabase(self):
+		print("Creating a ROLE table for {}".format(self.servername))#
+		conn.execute("CREATE TABLE  SERVERROLES_"+self.serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,SALE          INT     NOT NULL,COIN         INT     NOT NULL)")	
+		conn.commit()
+	def populateroles(self):
+		for roles in self.server.roles:
+			conn.execute("INSERT INTO SERVERROLES_"+self.serverid+" VALUES (?, ?, ?, ?);", (roles.id, roles.name, 0,0))
+			conn.commit()	
+	def setrolesale(self,role=None,sale=0,roleprice=0):
+		conn.execute("UPDATE SERVERROLES_"+self.serverid+" SET SALE = ? WHERE ID=?", (sale, role.id))
+		conn.execute("UPDATE SERVERROLES_"+self.serverid+" SET COIN = ? WHERE ID=?", (roleprice, role.id))
+		conn.commit() 
+	def update(self,ROLE,arg):
+		if arg == name:
+			print("{} Server Role Name Changed from {} to {}".format(self.servername,))
+			conn.execute("UPDATE SERVER_"+self.serverid+" SET NAME = ? WHERE ID=?", (ROLE.name, self.id)) 
+
+
+
 
 def createdatabase(serverid):
 	print("Creating A new server table!")
 	conn.execute("CREATE TABLE  SERVER_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,NICK            TEXT    ,ROLE        TEXT    NOT NULL,COIN         INT     NOT NULL)")	
 	conn.commit()
 
-def createroledatabase(servers):
-	for server in servers:
-		print("Creating a ROLE table for {}".format(server.name))
-		conn.execute("CREATE TABLE  SERVERROLES_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,COIN         INT     NOT NULL)")	
-		conn.commit()
 
 def createuserbase(serverid,members):
 	for x in members:
@@ -49,7 +68,7 @@ def closedatabase():
 	except:
 		print("Error Closing Database!")
 
-class database():
+class database:
 	def __init__(self,serverid=None,name = None ,nick=None,id =None,coin = 0):
 		self.serverid = serverid
 		if id ==None:
