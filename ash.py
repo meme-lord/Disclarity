@@ -255,8 +255,8 @@ async def kill(ctx, *, member):
         await client.say("Sorry My man !, you dont have the permissions...*the cops are on to you*")
 
 def search(ctx,member):
+    member = member.lower()
     memberlist = ctx.message.server.members
-
     namelist = []
     nicklist = []
     for memberss in memberlist:
@@ -441,25 +441,36 @@ async def insult(ctx,user):
 @client.command(pass_context = True)
 async def userinfo(ctx,member=None):
     """Gets User Info"""
-    memberz = search(ctx,member)
     if member == None:
         memberz = ctx.message.author
-    elif memberz != None:
         red = database(serverid=ctx.message.server.id,id=memberz.id)
         info = red.info()
+        print(info.name)
         embed=discord.Embed(title="User Information :", color=(memberz.top_role.color))
         embed.set_thumbnail(url=memberz.avatar_url)
         embed.add_field(name="Name", value=info.name, inline=True)
         embed.add_field(name="Nick", value=info.nick, inline=True)
         embed.add_field(name="ID", value=info.id, inline=True)
         embed.add_field(name="Moolah", value='**'+str(info.coin)+"**", inline=True)
-        #fix = "Joined at: "+str(memberz.joined_at)
-        #fix = fix[0:30]
-        #embed.set_footer(text=fix)
-
         await client.say(embed=embed)
     else:
-        await client.say("**{}** not found! , Contact your bruh .".format(member))
+        memberz = search(ctx,member)
+        if memberz != None:
+            print(memberz.id)
+            red = database(serverid=ctx.message.server.id,id=memberz.id)
+            info = red.info()
+            embed=discord.Embed(title="User Information :", color=(memberz.top_role.color))
+            embed.set_thumbnail(url=memberz.avatar_url)
+            embed.add_field(name="Name", value=info.name, inline=True)
+            embed.add_field(name="Nick", value=info.nick, inline=True)
+            embed.add_field(name="ID", value=info.id, inline=True)
+            embed.add_field(name="Moolah", value='**'+str(info.coin)+"**", inline=True)
+            #fix = "Joined at: "+str(memberz.joined_at)
+            #fix = fix[0:30]
+            #embed.set_footer(text=fix)
+            await client.say(embed=embed)
+        else:
+            await client.say("**{}** not found! , Contact your bruh .".format(member))
 
 @client.command(pass_context = True)
 async def addcoin(ctx,member,number):
@@ -898,16 +909,20 @@ async def highlow(ctx,rounds=8):
 @client.command(pass_context = True)
 async def sellrole(ctx,sellrole,price):
     '''Sets a Role for sale'''
-    if discord.utils.get(ctx.message.server.roles, name=sellrole):
-        await client.say("sellrole command is down for maintance!")
-
+    rolelist = []
+    if ctx.message.author.server_permissions.administrator:
+        for rolea in ctx.message.server.roles:
+            rolelist.append(rolea.name)
+            match = get_close_matches(role, rolelist)
+            found = discord.utils.get(ctx.message.server.roles, name=match[0])
+            roledatabase(ctx.message.server).setrolesale(found,sale,price)
 
 
 
 @client.command(pass_context = True)
 async def buyrole(ctx,buyrole):
     '''Allows you to purchase a role'''
-    await client.say("buyrole command is down for maintance!")
+    await client.say("Buyrole command is down for maintance!")
 
 
 DISCAPI = os.environ['DISCORDAPI']
