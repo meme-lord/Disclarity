@@ -900,10 +900,10 @@ async def highlow(ctx,rounds=8):
                 if baseamount < 1000:
                     baseamount = baseamount+(baseamount)
                     multiplyer = 2
-                if baseamount >= 1000 and baseamount < 2999:
+                elif baseamount >= 1000 and baseamount < 2999:
                     baseamount = baseamount+(baseamount/2)
                     multiplyer = 1.5
-                if baseamount > 2999:
+                elif baseamount > 2999:
                     baseamount = baseamount+(baseamount/4)
                     multiplyer = 1.25
                 await client.say("```Do you want to continue playing ? type [Y/n]. \n Current Multiplier [x{}] Current Pot [{}]```".format(str(multiplyer),str(baseamount)))
@@ -947,5 +947,6 @@ async def test(ctx):
             await client.say("Finished")
         except:
             print("Error")
+
 DISCAPI = os.environ['DISCORDAPI']
 client.run(DISCAPI)
