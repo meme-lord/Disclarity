@@ -886,46 +886,48 @@ async def sellrole(ctx,sellrole,price):
 		roledatabase(ctx.message.server).setrolesale(found,sale,price)
 
 @client.command(pass_context = True)
-async def buyrole(ctx,buyrole=None):
-	if buyrole == None:
-		string = roledatabase(ctx.message.server)
-		userinfo = string.showrolesale()
-		userlist = userinfo.namelist
-		print(userlist)
-		usercoinlist = userinfo.coinlist
-		print(usercoinlist)
-		x = PrettyTable()
-		for y in range(0,len(usercoinlist)):
-			x.field_names = ["Roles","Moolah"]
-			x.add_row([userlist[y],usercoinlist[y]])
-		await client.say(":moneybag:  __***Roles to purchase with Moolah***__ :moneybag: \n"+"```"+str(x)+"```"+"*Win Moolah by joining The Voice Chat and sending messages.*")
-	else:
-		rolelist = []
-		for rolea in ctx.message.server.roles:
-			rolelist.append(rolea.name)
-		match = get_close_matches(buyrole, rolelist)
-		if len(match) !=0:
-			found = discord.utils.get(ctx.message.server.roles, name=match[0])
-			print("GOT HERES")
-			roledata = roledatabase(server=ctx.message.server).info(input=found.id)
-			attrs = vars(roledata)
-			print(attrs)
-			print("GOT HERES")
-		else:
-			match =None
-		red = database(serverid=ctx.message.server.id,id=ctx.message.author.id)
-		userinfo = red.info()
-		if match != None:
-			if roledata.sale == 0:
-				await client.say("Role NOT for SALE!")
-			elif roledata.sale == 1 and userinfo.coin >= roledata.coin:
-				await client.say("Role for SALE!")
-			elif userinfo.coin < roledata.coin:
-				await client.say("You do not have enough Moolah for the purchase!.")
-			else:
-				await client.say("Error Occurred when trying to purchase [{}] .".format(found.name))
-		else:
-			await client.say("{} Not Found on the Server!.".format(buyrole))
+async def buyrole(ctx, *,buyrole=None):
+    if buyrole == None:
+        string = roledatabase(ctx.message.server)
+        userinfo = string.showrolesale()
+        userlist = userinfo.namelist
+        print(userlist)
+        usercoinlist = userinfo.coinlist
+        print(usercoinlist)
+        x = PrettyTable()
+        for y in range(0,len(usercoinlist)):
+            x.field_names = ["Roles","Moolah"]
+            x.add_row([userlist[y],usercoinlist[y]])
+        await client.say(":moneybag:  __***Roles to purchase with Moolah***__ :moneybag: \n"+"```"+str(x)+"```"+"*Win Moolah by joining The Voice Chat and sending messages.*")
+    else:
+        rolelist = []
+        for rolea in ctx.message.server.roles:
+            rolelist.append(rolea.name)
+        match = get_close_matches(buyrole, rolelist)
+        if len(match) !=0:
+            found = discord.utils.get(ctx.message.server.roles, name=match[0])
+            roledata = roledatabase(server=ctx.message.server).info(input=found.id)
+            attrs = vars(roledata)
+            print(attrs)
+        else:
+            match =None
+        red = database(serverid=ctx.message.server.id,id=ctx.message.author.id)
+        userinfo = red.info()
+        if match != None:
+            if roledata.sale == 0:
+                await client.say("The Role is Not for sale at the moment.For a list of available roles to buy  [type .buyrole]")
+            elif found in ctx.message.author.roles:
+                red.update(roledata.coin,"coin","-") 
+                await client.say("You already have {}".format(found))
+            elif roledata.sale == 1 and userinfo.coin >= roledata.coin and not found in ctx.message.author.roles:
+                await client.add_roles(ctx.message.author, found)
+                await client.say("{} has purchased {}!.".format(userinfo.name,found.name))
+            elif userinfo.coin < roledata.coin:
+                await client.say("You do not have enough Moolah for the purchase!.")
+            else:
+                await client.say("Error Occurred when trying to purchase [{}] .".format(found.name))
+        else:
+            await client.say("{} Not Found on the Server!.".format(buyrole))
 
 @client.command(pass_context = True)
 async def test(ctx):
