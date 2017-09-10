@@ -824,7 +824,6 @@ async def cointoss(ctx,user,amount):
 @client.command(pass_context = True)
 async def highlow(ctx,rounds=8):
 	'''Lets you play High and Low - Entry Costs Only 1 Moolah '''
-	global baseamount
 	baseamount = 1
 	red = database(serverid=ctx.message.server.id,id=ctx.message.author.id)
 	if red.info().coin > baseamount:
