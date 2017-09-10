@@ -1,5 +1,4 @@
 import discord
-from operator import ge, le, ne
 import random
 from sqdatabase import*
 
