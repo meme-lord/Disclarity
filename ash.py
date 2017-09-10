@@ -2,21 +2,10 @@
 import discord
 from discord.ext.commands import Bot
 from discord.ext import commands
-import asyncio
-import sqlite3
-import os
+import sqlite3, os
 import os.path
 from difflib import get_close_matches
-import discord
-from discord.ext.commands import Bot
-from discord.ext import commands
-import asyncio
-import random
-import time
-import discord
-import json
-import logging
-import os
+import asyncio, random, time, json, logging
 from random import randint
 from random import choice as randchoice
 try:
@@ -27,24 +16,18 @@ except:
 import aiohttp
 import http
 import praw #reddit posting
-import sys #system
 import urllib #view websites
-import time #get time
-import sys
-import dropbox
+import sys, dropbox, collections
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
-import sqlite3
 from prettytable import PrettyTable
 from operator import ge, le, ne
-import collections
 global xon
 sys.path.insert(0, 'modules')
 from modules.sqdatabase import *
-from modules.moolah import*
+from modules.moolah import *
 from modules.dropstorage import *
 secure_random = random.SystemRandom()
-
 
 #Initial Checks
 #############################CHECKLIST TO PASS#############################
@@ -66,7 +49,6 @@ for file in files:
 ###########################################################################
 bot_prefix= "."
 client = commands.Bot(command_prefix=bot_prefix)
-
 
 @client.event
 async def on_server_join(server):
@@ -108,7 +90,6 @@ async def on_ready():
         backup()
         await asyncio.sleep(1800)
 
-
 @client.event
 async def on_member_join(member):
 	#Send Welcome Meme!
@@ -129,8 +110,6 @@ async def on_member_join(member):
 async def on_member_remove(member):
     embed=discord.Embed(title="                   ", description="Let us bid "+member.display_name+" a grand farewell from our humble abode! :wave: ", color=0xf1ec1b)
     await client.send_message(member.server.default_channel, embed=embed)
-
-
 
 @client.event		
 async def on_member_update(before, after):
@@ -196,10 +175,7 @@ async def on_message(message):
             await client.delete_message(warningmsg1)
             await client.delete_message(warningmsg2)
 
-
-
     #######################################################################################################################################
-
 
 #################################COMMANDS#########################################
 @client.command(pass_context = True)
@@ -615,12 +591,6 @@ async def startraffle(ctx,nooftickets=None,MaxticketsPERPERSON=0,cost=None):
         else:
             await client.say("There is Already a Raffle Going On!")
 
-
-
-
-
-
-
 @client.command(pass_context = True)
 async def Reset(ctx):
     """RESET MOOLAH"""
@@ -632,10 +602,6 @@ async def Reset(ctx):
         await client.say("Moolah Corp ..Cleaning Complete! :white_sun_small_cloud: ")
     else:
         await client.say("You dont have the Permissions for this ! , Contact your local Admin for more info.")
-
-
-
-
 
 API_URL = "https://www.cleverbot.com/getreply?"
 
@@ -858,10 +824,6 @@ async def cointoss(ctx,user,amount):
             else:
                 await client.say("Error Bet Couldn't be Placed!")#
 
-
-
-
-
 @client.command(pass_context = True)
 async def highlow(ctx,rounds=8):
     '''Lets you play High and Low - Entry Costs Only 1 Moolah '''
@@ -970,8 +932,6 @@ async def buyrole(ctx,buyrole=None):
                 await client.say("Error Occurred when trying to purchase [{}] .".format(found.name))
         else:
             await client.say("{} Not Found on the Server!.".format(buyrole))
-
-
 
 @client.command(pass_context = True)
 async def test(ctx):

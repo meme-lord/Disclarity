@@ -13,10 +13,10 @@ class roledatabase:
 	def info(self,input):
 		cursor = conn.execute("SELECT ID, NAME, SALE,COIN FROM SERVERROLES_"+self.serverid+" WHERE ID=:id",{"id": input})
 		for row in cursor:
-			self.id  = 	row[0]
-			self.name =  row[1]
-			self.sale =  row[2]
-			self.coin = 	row[3]
+			self.id   =	row[0]
+			self.name =	row[1]
+			self.sale =	row[2]
+			self.coin =	row[3]
 		return self
 
 	def populateroles(self):
@@ -37,20 +37,15 @@ class roledatabase:
 			print("Printing Name:"+str(row[1])+" Printing Row 2 (coin): "+str(row[3]))
 		return self
 
-
 	def update(self,ROLE,arg):
 		if arg == name:
 			print("{} Server Role Name Changed from {} to {}".format(self.servername,))
 			conn.execute("UPDATE SERVER_"+self.serverid+" SET NAME = ? WHERE ID=?", (ROLE.name, self.id)) 
 
-
-
-
 def createdatabase(serverid):
 	print("Creating A new server table!")
 	conn.execute("CREATE TABLE  SERVER_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,NICK            TEXT    ,ROLE        TEXT    NOT NULL,COIN         INT     NOT NULL)")	
 	conn.commit()
-
 
 def createuserbase(serverid,members):
 	for x in members:
