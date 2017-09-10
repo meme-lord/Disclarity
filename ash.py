@@ -864,7 +864,7 @@ async def highlow(ctx,rounds=8):
 				await client.say("```Do you want to continue playing ? type [Y/n]. \n Current Multiplier [x{}] Current Pot [{}]```".format(str(multiplyer),str(baseamount)))
 				repeat = await client.wait_for_message(timeout=120,author=ctx.message.author)
 				repeat = repeat.content.lower()
-				if repeat != "yes":
+				if repeat != "yes" and repeat != "y":
 					running = False
 					red.update(baseamount,"coin","+")
 					await client.say("Have Fun with your Moolah! Alas for me 'tis a goodbye amigo.")
