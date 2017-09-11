@@ -421,7 +421,7 @@ async def insult(ctx,user):
 		checklist1 = []
 
 @client.command(pass_context = True)
-async def userinfo(ctx,member=None):
+async def userinfo(ctx, *,member=None):
 	"""Gets User Info"""
 	if member == None:
 		memberz = ctx.message.author
