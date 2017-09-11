@@ -836,9 +836,9 @@ async def highlow(ctx,rounds=8):
 		pass_template = "```Good job! The card is the {0} of {1}.```"
 		fail_template = "```Sorry, you fail. The card is the {0} of {1}.```"
 		running = True
-		card = random.choice(cards)
-		suit = random.choice(suits)
 		while running:
+			card = random.choice(cards)
+			suit = random.choice(suits)
 			await client.say("```The first card is the {0} of {1}.```".format(faces.get(card,card),suit))
 			next_card = random.choice(cards)
 			next_suit = random.choice(suits)
