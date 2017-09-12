@@ -822,6 +822,50 @@ async def cointoss(ctx,user,amount):
 				await client.say("Error Bet Couldn't be Placed!")
 
 @client.command(pass_context = True)
+async def tictactoe(ctx,user,amount=0):
+	#amount = abs(int(amount))
+	board = "```| {0} | {1} | {2} |\n------------\n| {3} | {4} | {5} |\n------------\n| {6} | {7} | {8} |```"
+	opponent = search(ctx,user)
+	opponent.ident = 'X'
+	challenger = ctx.message.author
+	challenger.ident = 'O'
+	spaces = ['_','_','_','_','_','_','_','_','_']
+	await client.say(board.format(*range(0,10))
+	#await client.say(board.format(*spaces))
+	await client.say("```{0} is X\n{1} is O\nX goes first```".format(opponent.name,challenger.name,))
+	current_player = opponent
+	while tictac_checkboard(spaces) == '_':
+		msg = await client.wait_for_message(author=current_player)
+		if msg.content.isdigit():
+			move = abs(int(msg.content))
+			if move > 9:
+				await client.say("Move must be less than 10, there's only 9 spaces!")
+				continue
+			if spaces[move] != "_":
+				await client.say("Space is already taken by %s" % spaces[move])
+				continue
+			spaces[move] = current_player.ident
+			await client.say(board.format(*spaces)
+			if current_player == opponent:
+				current_player = challenger
+			else:
+				current_player = opponent
+	result = tictac_checkboard(spaces)
+	if opponent.ident == result:
+		await client.say("%s/%s is the winner!" % (opponent.name,result))
+	else:
+		await client.say("%s/%s is the winner!" % (challenger.name,result))
+		
+def tictac_checkboard(spaces):
+	# horizontal, diagonal and vertical
+	directions = [spaces[0:3],spaces[3:6],spaces[6:9],[spaces[0],spaces[3],spaces[6]],[spaces[1],spaces[4],spaces[7]],[spaces[2],spaces[4],spaces[8]],[spaces[0],spaces[4],spaces[8]],[spaces[2],spaces[4],spaces[6]]]
+	if ['X','X','X'] in directions:
+		return 'X'
+	if ['O','O','O'] in directions:
+		return 'O'
+	return '_'
+				
+@client.command(pass_context = True)
 async def highlow(ctx,rounds=8):
 	'''Lets you play High and Low - Entry Costs Only 1 Moolah '''
 	baseamount = 1
@@ -831,7 +875,6 @@ async def highlow(ctx,rounds=8):
 		cards = range(1, 14)
 		faces = {11: 'Jack', 12: 'Queen', 13: 'King', 1: 'Ace'}
 		suits = ["Spades", "Hearts", "Clubs", "Diamonds"]
-
 		comparisons = {'h': le, 'l': ge, 's': ne}
 		pass_template = "```Good job! The card is the {0} of {1}.```"
 		fail_template = "```Sorry, you fail. The card is the {0} of {1}.```"
@@ -839,7 +882,6 @@ async def highlow(ctx,rounds=8):
 		card = random.choice(cards)
 		suit = random.choice(suits)
 		while running:
-
 			await client.say("```The first card is the {0} of {1}.```".format(faces.get(card,card),suit))
 			next_card = random.choice(cards)
 			next_suit = random.choice(suits)
