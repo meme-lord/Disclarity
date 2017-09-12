@@ -31,7 +31,6 @@ secure_random = random.SystemRandom()
 #####################-LOGGING-############################################
 class consolelogging(object):
 	def __init__(self):
-		logger = logging.getLogger()
 		Initializedtime = datetime.datetime.now()
 		Time = "["+str(Initializedtime)[0:16].replace(":","-").replace(" ","][")+"]"
 		# set up logging to file
@@ -39,7 +38,8 @@ class consolelogging(object):
 					format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
 					datefmt='%m-%d %H:%M',
 					filename='data/logs/conlog'+Time+'.log',
-					filemode='w')
+					filemode='w',
+					disable_existing_loggers=False)
 		# define a Handler which writes INFO messages or higher to the sys.stderr
 		console = logging.StreamHandler()
 		console.setLevel(logging.INFO)
@@ -837,9 +837,10 @@ async def highlow(ctx,rounds=8):
 		pass_template = "```Good job! The card is the {0} of {1}.```"
 		fail_template = "```Sorry, you fail. The card is the {0} of {1}.```"
 		running = True
+		card = random.choice(cards)
+		suit = random.choice(suits)
 		while running:
-			card = random.choice(cards)
-			suit = random.choice(suits)
+
 			await client.say("```The first card is the {0} of {1}.```".format(faces.get(card,card),suit))
 			next_card = random.choice(cards)
 			next_suit = random.choice(suits)
