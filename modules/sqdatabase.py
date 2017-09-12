@@ -1,5 +1,7 @@
 import sqlite3
 global conn
+import logging
+logger = logging.getLogger(__name__)
 
 class roledatabase:
 	def __init__(self,server):
@@ -7,7 +9,7 @@ class roledatabase:
 		self.serverid = server.id
 		self.servername = server.name
 	def createroledatabase(self):
-		print("Creating a ROLE table for {}".format(self.servername))#
+		logging.info("Creating a ROLE table for {}".format(self.servername))#
 		conn.execute("CREATE TABLE  SERVERROLES_"+self.serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,SALE          INT     NOT NULL,COIN         INT     NOT NULL)")	
 		conn.commit()
 	def info(self,input):
@@ -34,16 +36,16 @@ class roledatabase:
 		for row in cursor:
 			self.namelist.append(row[2])
 			self.coinlist.append(row[4])
-			print("Printing Name:"+str(row[1])+" Printing Row 2 (coin): "+str(row[3]))
+			logging.info("Printing Name:"+str(row[1])+" Printing Row 2 (coin): "+str(row[3]))
 		return self
 
 	def update(self,ROLE,arg):
 		if arg == name:
-			print("{} Server Role Name Changed from {} to {}".format(self.servername,))
+			logging.info("{} Server Role Name Changed from {} to {}".format(self.servername,))
 			conn.execute("UPDATE SERVER_"+self.serverid+" SET NAME = ? WHERE ID=?", (ROLE.name, self.id)) 
 
 def createdatabase(serverid):
-	print("Creating A new server table!")
+	logging.info("Creating A new server table!")
 	conn.execute("CREATE TABLE  SERVER_"+serverid+"(ID INT PRIMARY KEY     NOT NULL,NAME           TEXT    NOT NULL,NICK            TEXT    ,ROLE        TEXT    NOT NULL,COIN         INT     NOT NULL)")	
 	conn.commit()
 
@@ -68,20 +70,20 @@ def adduser(serverid,member):
 
 def startdatabase():
 	global conn
-	print("Starting database")
+	logging.info("Starting database")
 	conn = sqlite3.connect('USER.db') 
 def commitdatabase():
 	global conn
 	conn.commit()
 
 def closedatabase():
-	print("Closing Database!")
+	logging.info("Closing Database!")
 	global conn
 	try:
 		conn.commit()
 		conn.close()
 	except:
-		print("Error Closing Database!")
+		logging.warning("Error Closing Database!")
 
 class database:
 	def __init__(self,serverid=None,name = None ,nick=None,id =None,coin = 0):
@@ -112,25 +114,25 @@ class database:
 	def update(self,DATA,arg,types=None):
 		if arg == "name":
 			conn.execute("UPDATE SERVER_"+self.serverid+" SET NAME = ? WHERE ID=?", (DATA, self.id)) 
-			print("Changed Name From "+str(self.name) +" to "+str(DATA))
+			logging.info("Changed Name From "+str(self.name) +" to "+str(DATA))
 			self.name = DATA
 			return self
 		if arg == "nick":
 			conn.execute("UPDATE SERVER_"+self.serverid+" SET NICK = ? WHERE ID=?", (DATA, self.id)) 
-			print("Changed Nick From "+str(self.nick) +" to "+str(DATA))		
+			logging.info("Changed Nick From "+str(self.nick) +" to "+str(DATA))		
 			self.nick = DATA
 			return self
 		if arg == "coin":
 			if types == "+":
 				conn.execute("UPDATE SERVER_"+self.serverid+" SET COIN = COIN + ? WHERE ID=?", (DATA, self.id)) 
-				print("Added "+str(DATA)+" Moolah to "+ str(self.name))	
+				logging.info("Added "+str(DATA)+" Moolah to "+ str(self.name))	
 				ncoin = conn.execute("SELECT COIN FROM SERVER_"+self.serverid+" WHERE ID=:Id", {"Id": self.id})
 				for row in ncoin:
 					self.coin = row[0]
 				return self
 			elif types == "-":
 				conn.execute("UPDATE SERVER_"+self.serverid+" SET COIN = COIN - ? WHERE ID=?", (DATA, self.id)) 
-				print("Subtracted "+str(DATA)+" Moolah From "+ str(self.name))	
+				logging.info("Subtracted "+str(DATA)+" Moolah From "+ str(self.name))	
 				ncoin = conn.execute("SELECT COIN FROM SERVER_"+self.serverid+" WHERE ID=:Id", {"Id": self.id})
 				for row in ncoin:
 					self.coin = row[0]

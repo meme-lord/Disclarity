@@ -13,72 +13,92 @@ except:
 	soupAvailable = False
 import aiohttp
 import http
-import praw #reddit posting
-import urllib #view websites
 import sys, dropbox, collections
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 from prettytable import PrettyTable
 from operator import ge, le, ne
-global xon
+import datetime
+import logging
 sys.path.insert(0, 'modules')
 from modules.sqdatabase import *
 from modules.moolah import *
 from modules.dropstorage import *
+global xon
 secure_random = random.SystemRandom()
+#####################-LOGGING-############################################
+class consolelogging(object):
+	def __init__(self):
+		logger = logging.getLogger()
+		Initializedtime = datetime.datetime.now()
+		Time = "["+str(Initializedtime)[0:16].replace(":","-").replace(" ","][")+"]"
+		# set up logging to file
+		logging.basicConfig(level=logging.INFO,
+					format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+					datefmt='%m-%d %H:%M',
+					filename='data/logs/conlog'+Time+'.log',
+					filemode='w')
+		# define a Handler which writes INFO messages or higher to the sys.stderr
+		console = logging.StreamHandler()
+		console.setLevel(logging.INFO)
+		# set a format which is simpler for console use
+		formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+		# tell the handler to use this format
+		console.setFormatter(formatter)
+		# add the handler to the root logger
+		logging.getLogger('').addHandler(console)
 
+		# Now, we can log to the root logger, or any other logger. First the root...
+datalog = consolelogging()
 #Initial Checks
 #############################CHECKLIST TO PASS#############################
 def filecheck(file,arg):
 	if os.path.exists(file):
-		print("[{}] Found [x]".format(file))
+		logging.info("[{}] Found [x]".format(file))
 		return True
 	elif arg == "y":
-		print("{} Cannot Be found!".format(file))
+		logging.warning("{} Cannot Be found!".format(file))
 		f= open("{}".format(file),"w")
 		f.close()
-		print("{} Created!".format(file))
+		logging.info("{} Created!".format(file))
 	else:
-		print("{} Cannot Be found!".format(file))
+		logging.warning("{} Cannot Be found!".format(file))
 		return False
-files = ("discord.log","data/welcome.txt")
-for file in files:
-	filecheck(file,"y")
 ###########################################################################
 bot_prefix= "."
 client = commands.Bot(command_prefix=bot_prefix)
 
 @client.event
 async def on_server_join(server):
-	print("Bot has joined {}".format(server.name))
+	logging.info("Bot has joined {}".format(server.name))
 	try:
 		createdatabase(server.id)
 	except sqlite3.OperationalError:
-		print("OperationalError! ~ Table Already Exists")
+		logging.warning("OperationalError! ~ Table Already Exists")
 		pass
 	try:
 		createuserbase(server.id,server.members)
 	except sqlite3.IntegrityError:
-		print("IntegrityError ~ User Names Already Exists!")
+		logging.warning("IntegrityError ~ User Names Already Exists!")
 		pass
 	try:
 		roledata = roledatabase(server)
 		roledata.createroledatabase()
 		roledata.populateroles()
 	except sqlite3.OperationalError:
-		print("OperationalError! ~ Table Already Exists")
+		logging.warning("OperationalError! ~ Table Already Exists")
 		pass
 	except sqlite3.IntegrityError:
-		print("IntegrityError ~ User Names Already Exists!")
+		logging.warning("IntegrityError ~ User Names Already Exists!")
 		pass
 
 @client.event
 async def on_ready():
-	print("____________________________________")
-	print("{} Is Now Online!".format(client.user.name))
-	print("ID: {}".format(client.user.id))
+	logging.info("____________________________________")
+	logging.info("{} Is Now Online!".format(client.user.name))
+	logging.info("ID: {}".format(client.user.id))
 	await client.change_presence(game=discord.Game(name='Doing what needs to be Done!'))
-	print("____________________________________")
+	logging.info("____________________________________")
 	restore()
 	startdatabase()
 	while True:
@@ -91,7 +111,7 @@ async def on_ready():
 @client.event
 async def on_member_join(member):
 	#Send Welcome Meme!
-	with open("data/welcome.txt") as f:
+	with open("data/welcome-meme/welcome.txt") as f:
 		line = f.readlines()
 	pick = random.choice(line)
 	await client.send_message(member.server.default_channel, pick)
@@ -100,7 +120,7 @@ async def on_member_join(member):
 	await client.send_message(member.server.default_channel, embed=embed)
 	#Assign a role!
 	role = discord.utils.get(member.server.roles, name="Recruit")
-	print("Setting Role :"+str(role.name)+" Name: "+str(member.name))
+	logging.info("Setting Role :"+str(role.name)+" Name: "+str(member.name))
 	adduser(member.server.id, member)
 	await client.add_roles(member, role)
 
@@ -115,15 +135,15 @@ async def on_member_update(before, after):
 	if "341326594113011712" in str(after.id):
 		if not(before.nick == "Fiddling Bot"):
 			await client.change_nickname(after, "Fiddling Bot")
-			print("Reverted Music bots Nickname to Fiddling Bot")
+			logging.info("Reverted Music bots Nickname to Fiddling Bot")
 	#if "138684247853498369" in str(after.id):
 	#	if not(after.nick == "Xelor"):
 	#		await client.change_nickname(after, "Xelor")
-	#		print("Reverted Xelor Nickname to Xelor")
+	#		logging.info("Reverted Xelor Nickname to Xelor")
 	if "341694509744128001" in str(after.id):
 		if not(after.nick == "Innocent Bot"):
 			await client.change_nickname(after, "Innocent Bot")
-			print("Reverted Innocent Bot Nickname to Innocent Bot")
+			logging.info("Reverted Innocent Bot Nickname to Innocent Bot")
 	###################################BOT AUTO DISCONNECT FEATURE###################################
 	bot = discord.utils.get(client.get_server("205438531429072897").members, nick="Fiddling Bot")
 	if bot != None:
@@ -156,7 +176,7 @@ async def on_message(message):
 	await client.process_commands(message)
 	authorr = message.author
 	contents = message.content
-	print("Name: [{}]".format(authorr.name)+" Nickname: [{}]".format(authorr.nick)+" ID: [{}]".format(authorr.id)+" String Length:"+str(len(message.content)))
+	logging.info("Name: [{}]".format(authorr.name)+" Nickname: [{}]".format(authorr.nick)+" ID: [{}]".format(authorr.id)+" String Length:"+str(len(message.content)))
 	#############################################################GIVE COINS#############################################################
 	number = 1
 	if not "." in message.content[0:1] and not "!" in message.content[0:1] :
@@ -188,7 +208,7 @@ async def getbans(ctx):
 async def shutdown(ctx):
 	"""SAVES ALL USER DATA and turns off the bot/restart"""
 	if ctx.message.author.server_permissions.administrator:
-		print("Saving Files to Dropbox")
+		logging.info("[SHUTDOWN] Saving Files to Dropbox")
 		closedatabase()
 		backup()
 		warning = await client.say("Saving Data Files....")
@@ -228,7 +248,6 @@ async def kill(ctx, *, member):
 			return
 		elif (member.id == "138684247853498369"):
 			await client.say("Ya Can't Touch me Bruh, get on my Level! :sunglasses:")
-			print("yolo")
 		elif (member.id == "341694509744128001"):
 			await client.say("Why do you want to kill me ! I am an innocent bot!.")
 		else:
@@ -246,35 +265,26 @@ def search(ctx,member):
 	for memberss in memberlist:
 		namelist.append(memberss.name)
 	match = get_close_matches(member, namelist)
-	for xx in match:
-		print(str(xx))
 	for membersx in memberlist:
 		nicklist.append(str(membersx.nick))
 	match2 = get_close_matches(member, nicklist)
 	if len(match) != 0 :
-		print("Got here3")
 		name = discord.utils.get(memberlist, name=match[0])
 		return name
 	elif len(match) == 0:
-		print("Got here 3.5")
 		if len(match2) != 0:
-			print("Got here4")
 			nick = discord.utils.get(memberlist, nick=match2[0])
 			return nick
 		elif len(match2) == 0:
-			print("Got here5")
 			if member.isdigit():
 				nameid = discord.utils.get(memberlist, id=member)
 				return nameid
 			elif "@" in member[1:2]:
-				print(member[1:2])
 				user = member.strip('<')
 				user = user.strip('>')
 				user = user.strip('@')
 				user = user.strip('!')
-				print("PRINTING "+user)
 				user = discord.utils.get(ctx.message.server.members, id=user)
-				print(user.display_name)
 				return user
 			else:
 				return None
@@ -427,7 +437,6 @@ async def userinfo(ctx, *,member=None):
 		memberz = ctx.message.author
 		red = database(serverid=ctx.message.server.id,id=memberz.id)
 		info = red.info()
-		print(info.name)
 		embed=discord.Embed(title="User Information :", color=(memberz.top_role.color))
 		embed.set_thumbnail(url=memberz.avatar_url)
 		embed.add_field(name="Name", value=info.name, inline=True)
@@ -438,7 +447,6 @@ async def userinfo(ctx, *,member=None):
 	else:
 		memberz = search(ctx,member)
 		if memberz != None:
-			print(memberz.id)
 			red = database(serverid=ctx.message.server.id,id=memberz.id)
 			info = red.info()
 			embed=discord.Embed(title="User Information :", color=(memberz.top_role.color))
@@ -458,22 +466,22 @@ async def userinfo(ctx, *,member=None):
 async def addcoin(ctx,member,number):
 	"""Gives Moolah to specified user Ultra Admin use only"""
 	if ctx.message.author.server_permissions.administrator:
-		print ("Opened database successfully")
 		memberz = search(ctx,member)
 		if memberz != None:
 			red = database(serverid=ctx.message.server.id,id=memberz.id)
 			red.update(arg="coin",DATA=number,types="+")
+			logging.info("Opened database successfully - Added Coins[{}] to [{}] on [{}] server".format(number,member,memberz.server.name))
 			await client.say("No.of Moolah Added: "+str(number))
 
 @client.command(pass_context = True)
 async def removecoin(ctx,member,number):
 	"""Removes Moolah from specified user Ultra Admin use only"""
 	if ctx.message.author.server_permissions.administrator:
-		print ("Opened database successfully")
 		memberz = search(ctx,member)
 		if memberz != None:
 			red = database(serverid=ctx.message.server.id,id=memberz.id)
 			red.update(arg="coin",DATA=number,types="-")
+			logging.info("Opened database successfully - Removed Coins[{}] from [{}] on [{}] server".format(number,member,memberz.server.name))
 			await client.say("No.of Moolah Added: "+str(number))
 
 @client.command(pass_context = True)
@@ -509,7 +517,6 @@ async def buytic(ctx,NoTic=None):
 			nott = 0
 			rafflelist.append(ctx.message.author.name)
 			global d
-			print(d[ctx.message.author.name])
 			for x in range (0,NoTic):
 				if len(raffletic) != 0 and len(d[ctx.message.author.name]) != Max:
 					number = random.choice(raffletic)
@@ -517,13 +524,11 @@ async def buytic(ctx,NoTic=None):
 					totalcost = totalcost + int(costs)
 					d[ctx.message.author.name].append(number)
 					raffletic.remove(number)
-			print(d[ctx.message.author.name])
 			global pool
 			pool = pool + totalcost
 			xon = int(xon) - abs(int(nott))
 			await client.say("```{} Tickets Bought Costing {}\n [{}] remaining tickets. Current Pool [{}] Moolah ```\n Your Numbers are **".format(nott,totalcost,xon,pool)+str(d[ctx.message.author.name])+"**.")
 			c1.update(arg="coin",types ="-",DATA=totalcost)
-			print(d)
 
 @client.command(pass_context = True)
 async def callraffle(ctx):
@@ -538,7 +543,6 @@ async def callraffle(ctx):
 		for x in d:
 			for y in d[x]:
 				while winningno != y:
-					print(winningno)
 					winningno = random.choice(list(range(0, int(xon))))
 					global final
 					final = x
@@ -546,7 +550,6 @@ async def callraffle(ctx):
 		await client.say("Whoever is holding the winning number please come foward and claim your prize!")
 		await asyncio.sleep(10)
 		await client.say("{} is holding the the winning number {}".format(x,winningno))
-		print(final)
 		c1 =database(serverid=ctx.message.server.id,id = (search(ctx,final)).id)
 		global pool
 		c1.update(arg="coin",types ="+",DATA=pool)
@@ -593,7 +596,7 @@ async def Reset(ctx):
 	"""RESET MOOLAH"""
 	if ctx.message.author.server_permissions.administrator:
 		await client.say(":warning: Resetting Moolah :warning: ....... Type [yes/no] to Confirm!.")
-		print ("Opened database successfully")
+		logging.info ("Opened database successfully")
 		red = database(serverid="205438531429072897")
 		string = red.update(0,"masscoin",types="=")
 		await client.say("Moolah Corp ..Cleaning Complete! :white_sun_small_cloud: ")
@@ -673,7 +676,6 @@ betlist = []
 @client.command(pass_context = True)
 async def cointoss(ctx,user,amount):
 	''' Wager Your Moolah in this deadly game and rise to the top!'''
-	print(betlist)
 	amount = abs(int(amount))
 	bank = ['heads',"tails"]
 	a = ['heads', 'tails', 'cancel']
@@ -684,8 +686,6 @@ async def cointoss(ctx,user,amount):
 	red = database(serverid=ctx.message.server.id,id=Opponent.id)
 	redm = red.info().coin
 	bluem = blue.info().coin
-	print("Challenger Moolah: "+str(bluem))
-	print("Opponent Moolah: "+str(redm))
 	if bluem < amount :
 		await client.say("You Dont Have Enough Moolah for this wager!")
 	if Challenger.name in betlist:
@@ -693,7 +693,6 @@ async def cointoss(ctx,user,amount):
 	elif Challenger.name not in betlist:
 		if redm < amount and redm  > 0 and not bluem < amount:
 			if Challenger.name not in betlist:
-				print("APPENDING!")
 				betlist.append(Challenger.name)
 				betlist.append(Opponent.name)
 			await client.say("Showdown between {} and {} for ".format(ctx.message.author.mention,member.mention) +"\n"+"Challenger Has Waged " +"**"+str(amount)+"**" +" Moolah")
@@ -891,9 +890,7 @@ async def buyrole(ctx, *,buyrole=None):
         string = roledatabase(ctx.message.server)
         userinfo = string.showrolesale()
         userlist = userinfo.namelist
-        print(userlist)
         usercoinlist = userinfo.coinlist
-        print(usercoinlist)
         x = PrettyTable()
         for y in range(0,len(usercoinlist)):
             x.field_names = ["Roles","Moolah"]
@@ -908,7 +905,6 @@ async def buyrole(ctx, *,buyrole=None):
             found = discord.utils.get(ctx.message.server.roles, name=match[0])
             roledata = roledatabase(server=ctx.message.server).info(input=found.id)
             attrs = vars(roledata)
-            print(attrs)
         else:
             match =None
         red = database(serverid=ctx.message.server.id,id=ctx.message.author.id)
@@ -939,7 +935,7 @@ async def test(ctx):
 			roledata.populateroles()
 			await client.say("Finished")
 		except:
-			print("Error")
+			logging.warning("Error")
 
 DISCAPI = os.environ['DISCORDAPI']
 client.run(DISCAPI)

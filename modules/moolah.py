@@ -1,9 +1,11 @@
 import discord
 import random
+import logging
 from sqdatabase import*
+logger = logging.getLogger(__name__)
 
 def givemoolah(serverlist):
-    print("Giving Moolah!")
+    logging.info("Giving Moolah!")
     for server in serverlist:
         for member in server.members:
             if member.voice_channel != None and member.voice_channel.id !=server.afk_channel.id:
@@ -24,4 +26,4 @@ def givemoolah(serverlist):
                             muteno = 75
                             red = database(serverid =server.id,id=memberz.id)
                             red.update(muteno,arg="coin",types="+")
-    print("Finished Giving Moolah")
+    logging.info("Finished Giving Moolah")

@@ -4,7 +4,9 @@ import discord
 import dropbox
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
+import logging
 #########################################################################################################################
+logger = logging.getLogger(__name__)
 DROPAPI = os.environ['DROPBOXAPI']
 dbx = dropbox.Dropbox(DROPAPI)
 LOCALFILE = 'USER.db'
@@ -21,29 +23,29 @@ def restore():
     # Download the specific revision of the file at BACKUPPATH to LOCALFILE
     try:
         os.remove(LOCALFILE)
-        print("[USER.db] Detected Removing.....Done")
+        logging.info("[USER.db] Detected Removing.....Done")
     except OSError:
-        print("OSError")
+        logging.warning("OSError")
         pass
     try:
-        print("Downloading current " + BACKUPPATH + " from Dropbox, overwriting " + LOCALFILE + "...")
+        logging.info("Downloading current " + BACKUPPATH + " from Dropbox, overwriting " + LOCALFILE + "...")
         dbx.files_download_to_file(LOCALFILE, BACKUPPATH)
     except:
-        print("RESTORE FAILED NO DATABASE!!")
-        print("Ignoring and continuing ..")
+        logging.warning("RESTORE FAILED NO DATABASE!!")
+        logging.warning("Ignoring and continuing ..")
 
 def backup():
     with open(LOCALFILE, 'rb') as f:
         # We use WriteMode=overwrite to make sure that the settings in the file
         # are changed on upload
-        print("Uploading " + LOCALFILE + " to Dropbox as " + BACKUPPATH + "...")
+        logging.info("Uploading " + LOCALFILE + " to Dropbox as " + BACKUPPATH + "...")
         try:
             try:
                 dbx.files_delete(BACKUPPATH)
             except:
                 pass
             dbx.files_upload(f.read(), BACKUPPATH, mode=dropbox.files.WriteMode.overwrite)
-            print("Uploaded!")
+            logging.info("Uploaded!")
         except ApiError as err:
             # This checks for the specific error where a user doesn't have
             # enough Dropbox space quota to upload this file
@@ -51,8 +53,8 @@ def backup():
                     err.error.get_path().error.is_insufficient_space()):
                 sys.exit("ERROR: Cannot back up; insufficient space.")
             elif err.user_message_text:
-                print(err.user_message_text)
+                logging.warning(err.user_message_text)
                 sys.exit()
             else:
-                print(err)
+                logging.warning(err)
                 sys.exit()
