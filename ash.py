@@ -20,11 +20,13 @@ from prettytable import PrettyTable
 from operator import ge, le, ne
 import datetime
 import logging
-sys.path.insert(0, 'modules')
+#sys.path.insert(0, 'modules')
 from modules.sqdatabase import *
 from modules.moolah import *
 from modules.dropstorage import *
 global xon
+LOCALLOG = (glob.glob("data/logs/*.log"))
+print(LOCALLOG)
 secure_random = random.SystemRandom()
 #####################-LOGGING-############################################
 class consolelogging(object):

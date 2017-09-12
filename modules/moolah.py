@@ -1,7 +1,7 @@
 import discord
 import random
 import logging
-from sqdatabase import*
+from modules.sqdatabase import*
 logger = logging.getLogger(__name__)
 
 def givemoolah(serverlist):

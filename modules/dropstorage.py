@@ -5,13 +5,19 @@ import dropbox
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 import logging
+import glob
 #########################################################################################################################
 logger = logging.getLogger(__name__)
 DROPAPI = os.environ['DROPBOXAPI']
 dbx = dropbox.Dropbox(DROPAPI)
 LOCALFILE = 'USER.db'
+#LOCALLOG = (glob.glob(__DIR__"data/logs/*.log"))
+#print(LOCALLOG)
 BACKUPPATH = '/USER.db'
-
+#for file in LOCALLOG:
+#    logfile = file
+#    print(logfile)
+#BACKUPLPATH = "/"+str(os.path.basename(logfile))
 def file_len(fname):
     with open(fname,encoding='utf-8') as f:
         for i, l in enumerate(f):
